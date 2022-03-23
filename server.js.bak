@@ -1,0 +1,20 @@
+const { query } = require('express');
+var express = require('express');
+var app = express();
+var fs = require("fs");
+
+app.get('/listUsers', function (req, res) {
+   fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
+    //    console.log( data );
+      res.end( data );
+   });
+   res.setHeader("Access-Control-Allow-Origin", "*"); //跨CORS來源解除限制，請在正式上線移除，或是更改設定值
+})
+
+var server = app.listen(8080, function () {
+
+   var host = server.address().address
+   var port = server.address().port
+   console.log("http://%s:%s", host, port)
+
+})

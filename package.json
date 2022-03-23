@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@ffmpeg/core": "^0.10.0",
+    "@ffmpeg/ffmpeg": "^0.10.1",
+    "express": "^4.17.3",
+    "rtsp-ffmpeg": "^0.0.16",
+    "socket.io": "^4.4.1"
+  }
+}
