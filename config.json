@@ -1,0 +1,7 @@
+{
+    "stream_url": "rtsp://192.168.0.176/avc",
+    "stream_fps":1,
+    "stream_resolution": "640x480",
+    "stream_quality": 1,
+    "Port":6147
+}

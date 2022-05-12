@@ -1,0 +1,394 @@
+var express = require('express')
+var cors = require('cors')
+var app = express()
+const bodyParser = require('body-parser')
+var fs = require("fs");
+var url = require('url');
+
+app.use(bodyParser.text({
+    type: '*/*'
+}), cors())
+
+var log = 0;
+app.get('/nodejsApi/addspot', function (req, res, next) {
+    output = defaultArray();
+    var params = url.parse(req.url, true).query;
+    if (params.name !== undefined) {
+        output["status"] = 200
+        output['name'] = params.name
+    } else {
+        output.status = 400
+    }
+    res.write(JSON.stringify(output))
+    res.end();
+    console.log("(" + log + ")" + JSON.stringify(output));
+    log = log + 1;
+})
+// 取得物件資料資料
+var xxx = 0
+app.get('/object/data', (req, res) => {
+    var data = []
+    const spot = getSpotsData()
+    const scope = getScopesData()
+    const line = getLinesData()
+    data = {
+        spot: spot,
+        scopes: scope,
+        line: line
+    }
+    res.send(data)
+    console.log(xxx)
+    xxx++
+})
+// 新增"點"資料
+app.post('/object/spot/add', (req, res) => {
+    var status = true;
+    const stops = getSpotsData()
+    console.log(stops.length)
+    var totle = 0
+    if (stops.length === 0) {
+        totle = 0
+    } else if (stops.length >= 6) {
+        status = false;
+    } else {
+        totle = stops.length
+    }
+    if (status) {
+        var spotsum = 0
+        if (stops.length === 0) {
+            spotsum = totle + 1
+        } else {
+            var testarray = []
+            stops.forEach(function (element) {
+                testarray.push(element.name)
+            })
+            spotsum = spotsum + 1
+            while (testarray.includes(spotsum)) {
+                spotsum = spotsum + 1
+            }
+        }
+        var locationX = (20 + spotsum * 20) / 640
+        var locationY = (20 + spotsum * 20) / 480
+        locationX = locationX.toFixed(4)
+        locationY = locationY.toFixed(4)
+        var newArray = {
+            "name": spotsum,
+            "temperature": 23,
+            "position": {
+                "X": locationX,
+                "Y": locationY
+            }
+        }
+        stops.push(newArray)
+        stops.sort(function (a, b) {
+            return a.name - b.name
+        })
+        saveSpotData(stops);
+    }
+    res.send({
+        success: true,
+        //     msg: 'User data added successfully'
+    })
+})
+
+// 編輯"點"資料
+app.post('/object/putSpot', (req, res) => {
+    const SpotData = JSON.parse(req.body)
+    const existSpots = getSpotsData()
+    var testarray = []
+    existSpots.forEach(function (element) {
+        testarray.push(element.name)
+    })
+    inquire = testarray.indexOf(SpotData.name);
+    existSpots[inquire].position.X = SpotData.X
+    existSpots[inquire].position.Y = SpotData.Y
+    saveSpotData(existSpots)
+    res.send({
+        success: true,
+    })
+})
+// 刪除"點"資料
+app.post('/object/deletespot', (req, res) => {
+    const username = JSON.parse(req.body)
+    //get the existing userdata
+    const existUsers = getSpotsData()
+    //filter the userdata to remove it
+    var testarray = []
+    existUsers.forEach(function (element) {
+        testarray.push(element.name)
+    })
+    inquire = testarray.indexOf(username.name);
+    existUsers.splice(inquire, 1)
+    console.log(inquire)
+    saveSpotData(existUsers)
+    res.send({
+        success: true,
+        //     msg: 'User removed successfully'
+    })
+})
+
+// 新增"範圍"資料
+app.post('/object/scope/add', (req, res) => {
+    var status = true;
+    const scopes = getScopesData()
+    console.log(scopes)
+    var totle = 0
+    if (scopes.length === 0) {
+        totle = 0
+    } else if (scopes.length >= 6) {
+        status = false;
+    } else {
+        totle = scopes.length
+    }
+    if (status) {
+        var scopessum = 0
+        if (scopes.length === 0) {
+            scopessum = totle + 1
+        } else {
+            var testarray = []
+            scopes.forEach(function (element) {
+                testarray.push(element.name)
+            })
+            scopessum = scopessum + 1
+            while (testarray.includes(scopessum)) {
+                scopessum = scopessum + 1
+            }
+        }
+        var locationX = (20 + scopessum * 20) / 640
+        var locationY = (20 + scopessum * 20) / 480
+        var locationX1 = (120 + scopessum * 20) / 640
+        var locationY1 = (120 + scopessum * 20) / 480
+        locationX = locationX.toFixed(4)
+        locationY = locationY.toFixed(4)
+        var newArray = {
+            "name": scopessum,
+            "temperature": 23,
+            "position": {
+                "LT": {
+                    "X": locationX,
+                    "Y": locationY
+                },
+                "BR": {
+                    "X": locationX1,
+                    "Y": locationY1
+                }
+            }
+        }
+        scopes.push(newArray)
+        scopes.sort(function (a, b) {
+            return a.name - b.name
+        })
+        saveScopeData(scopes);
+    }
+    res.send({
+        success: true,
+        //     msg: 'User data added successfully'
+    })
+})
+// 編輯"範圍"資料
+app.post('/object/putScope', (req, res) => {
+    const ScopeData = JSON.parse(req.body)
+    const existScope = getScopesData()
+    var testarray = []
+    existScope.forEach(function (element) {
+        testarray.push(element.name)
+    })
+    inquire = testarray.indexOf(ScopeData.name);
+    existScope[inquire].position.LT.X = ScopeData.LT.X
+    existScope[inquire].position.LT.Y = ScopeData.LT.Y
+    existScope[inquire].position.BR.X = ScopeData.BR.X
+    existScope[inquire].position.BR.Y = ScopeData.BR.Y
+    saveScopeData(existScope)
+    res.send({
+        success: true,
+    })
+})
+// 刪除"範圍"資料
+app.post('/object/deletescope', (req, res) => {
+    const username = JSON.parse(req.body)
+    //get the existing userdata
+    const existUsers = getScopesData()
+    //filter the userdata to remove it
+    var testarray = []
+    existUsers.forEach(function (element) {
+        testarray.push(element.name)
+    })
+    inquire = testarray.indexOf(username.name);
+    existUsers.splice(inquire, 1)
+    console.log(inquire)
+    saveScopeData(existUsers)
+    res.send({
+        success: true,
+        //     msg: 'User removed successfully'
+    })
+})
+
+// 新增線
+app.post('/object/line/add', (req, res) => {
+    var status = true;
+    const lines = getLinesData()
+    console.log(lines)
+    var totle = 0
+    if (lines.length === 0) {
+        totle = 0
+    } else if (lines.length >= 6) {
+        status = false;
+    } else {
+        totle = lines.length
+    }
+    if (status) {
+        var linessum = 0
+        if (lines.length === 0) {
+            linessum = totle + 1
+        } else {
+            var testarray = []
+            lines.forEach(function (element) {
+                testarray.push(element.name)
+            })
+            linessum = linessum + 1
+            while (testarray.includes(linessum)) {
+                linessum = linessum + 1
+            }
+        }
+        var locationX = (20 + linessum * 20) / 640
+        var locationY = (80 + linessum * 20) / 480
+        var locationX1 = (80 + linessum * 20) / 640
+        var locationY1 = (20 + linessum * 20) / 480
+        locationX = locationX.toFixed(4)
+        locationY = locationY.toFixed(4)
+        var newArray = {
+            "name": linessum,
+            "temperature": 23,
+            "position": {
+                "point1": {
+                    "X": locationX,
+                    "Y": locationY
+                },
+                "point2": {
+                    "X": locationX1,
+                    "Y": locationY1
+                }
+            }
+        }
+        lines.push(newArray)
+        lines.sort(function (a, b) {
+            return a.name - b.name
+        })
+        saveLineData(lines);
+    }
+    res.send({
+        success: true,
+        //     msg: 'User data added successfully'
+    })
+})
+// 編輯"線"資料
+app.post('/object/putLine', (req, res) => {
+    const LineData = JSON.parse(req.body)
+    const existLine = getLinesData()
+    var testarray = []
+    existLine.forEach(function (element) {
+        testarray.push(element.name)
+    })
+    inquire = testarray.indexOf(LineData.name);
+    if (LineData.select === "pointA") {
+        existLine[inquire].position.point1.X = LineData.X
+        existLine[inquire].position.point1.Y = LineData.Y
+    } else if (LineData.select === "pointB") {
+        existLine[inquire].position.point2.X = LineData.X
+        existLine[inquire].position.point2.Y = LineData.Y
+    }
+    saveLineData(existLine)
+    res.send({
+        success: true,
+    })
+})
+// 刪除"線"資料
+app.post('/object/deleteline', (req, res) => {
+    const username = JSON.parse(req.body)
+    //get the existing userdata
+    const existUsers = getLinesData()
+    //filter the userdata to remove it
+    var testarray = []
+    existUsers.forEach(function (element) {
+        testarray.push(element.name)
+    })
+    inquire = testarray.indexOf(username.name);
+    existUsers.splice(inquire, 1)
+    console.log(inquire)
+    saveLineData(existUsers)
+    res.send({
+        success: true,
+        //     msg: 'User removed successfully'
+    })
+})
+/* util functions */
+//read the user data from json file
+// save spot
+const saveSpotData = (data) => {
+    const stringifyData = JSON.stringify(data)
+    fs.writeFileSync('./object/spot.json', stringifyData)
+}
+//get the user data from json file
+// get spot
+const getSpotsData = () => {
+    const jsonData = fs.readFileSync('./object/spot.json')
+    // console.log(JSON.parse(jsonData))
+    return JSON.parse(jsonData)
+}
+
+// save scope
+const saveScopeData = (data) => {
+    const stringifyData = JSON.stringify(data)
+    fs.writeFileSync('./object/scope.json', stringifyData)
+}
+//get the user data from json file
+// get spot
+const getScopesData = () => {
+    const jsonData = fs.readFileSync('./object/scope.json')
+    // console.log(JSON.parse(jsonData))
+    return JSON.parse(jsonData)
+}
+
+// save Line
+const saveLineData = (data) => {
+    const stringifyData = JSON.stringify(data)
+    fs.writeFileSync('./object/line.json', stringifyData)
+}
+//get the user data from json file
+// get Line
+const getLinesData = () => {
+    const jsonData = fs.readFileSync('./object/line.json')
+    // console.log(JSON.parse(jsonData))
+    return JSON.parse(jsonData)
+}
+
+
+const json2array = (json) => {
+    var result = [];
+    var keys = Object.keys(json);
+    keys.forEach(function (key) {
+        result.push(json[key]);
+    });
+    return result;
+}
+
+app.listen(8080, function () {
+    console.log("API啟動成功");
+})
+
+function defaultArray() {
+    output = {
+        "status": null,
+        "uid": null,
+        "information": null,
+        "fps": null,
+        "date": null,
+        "recordTime": null,
+        "name": null,
+        "position": {
+            "LT": null,
+            "BR": null,
+        }
+    };
+    return output;
+}
