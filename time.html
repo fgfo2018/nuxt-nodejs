@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style type="text/css">
+        body {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+            justify-content: center;">
+        <div id="time" style="font-size: 13vw;
+    font-weight: 900;color: #fff;"></div>
+    </div>
+    <script type="text/javascript">
+        setInterval(() => {
+            var yaer = new Date();
+            yaer = yaer.getFullYear()
+            var tmptime = new Date(yaer + '/01/1 00:00:00');
+            var time = new Date();
+            // var time = new Date().getTimezoneOffset()
+            console.log(time)
+            var tmp = time.getTime() - tmptime.getTime();
+            var div = document.getElementById("time")
+            div.innerHTML = getDuration(tmp / 1000) + ':' + ("0" + (tmp % 1000)).slice(-3)
+        });
+        // 秒 轉 分、時、天，並且隱藏時間未到的單位
+        function getDuration(second) {
+            var days = Math.floor(second / 86400);
+            var hours = Math.floor((second % 86400) / 3600);
+            var minutes = Math.floor(((second % 86400) % 3600) / 60);
+            var seconds = Math.floor(((second % 86400) % 3600) % 60);
+            var duration = "" + ("0" + days).slice(-3) + ":" + ("0" + hours).slice(-2) + ":" + ("0" + minutes)
+                .slice(-2) +
+                ":" +
+                ("0" + seconds).slice(-2);
+            return duration;
+        }
+    </script>
+</body>
+
+</html>

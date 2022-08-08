@@ -37,7 +37,7 @@ app.get('/api/monitor/object/data', (req, res) => {
     // })
     data = {
         spot: spot,
-        scopes: scope,
+        scope: scope,
         line: line
     }
     res.send(data)
@@ -45,7 +45,7 @@ app.get('/api/monitor/object/data', (req, res) => {
     xxx++
 })
 // 新增"點"資料
-app.post('/api/monitor/object/spot/add', (req, res) => {
+app.post('/api/monitor/object/add/spot', (req, res) => {
     var status = true;
     const stops = getSpotsData()
     console.log(stops.length)
@@ -89,7 +89,9 @@ app.post('/api/monitor/object/spot/add', (req, res) => {
             "spot_position": {
                 "x": locationX,
                 "y": locationY
-            }
+            },
+            "spot_alarm_status": 0,
+            "spot_threshold": 20
         }
         stops.push(newArray)
         stops.sort(function (a, b) {
@@ -104,7 +106,7 @@ app.post('/api/monitor/object/spot/add', (req, res) => {
 })
 
 // 編輯"點"資料
-app.post('/api/monitor/object/spot/change', (req, res) => {
+app.post('/api/monitor/object/change/spot', (req, res) => {
     const SpotData = JSON.parse(req.body)
     const existSpots = getSpotsData()
     if (SpotData.status === "0") {
@@ -113,8 +115,15 @@ app.post('/api/monitor/object/spot/change', (req, res) => {
             testarray.push(element.spot_number)
         })
         inquire = testarray.indexOf(SpotData.spot_number);
-        existSpots[inquire].spot_position.x = SpotData.spot_position.x
-        existSpots[inquire].spot_position.y = SpotData.spot_position.y
+        if (SpotData.spot_position !== undefined) {
+            existSpots[inquire].spot_position.x = SpotData.spot_position.x
+            existSpots[inquire].spot_position.y = SpotData.spot_position.y
+        }
+        if (SpotData.spot_alarm_status !== undefined || SpotData.spot_threshold !== undefined) {
+            existSpots[inquire].spot_alarm_status = SpotData.spot_alarm_status
+            existSpots[inquire].spot_threshold = SpotData.spot_threshold
+        }
+        console.log(SpotData.spot_alarm_status)
         saveSpotData(existSpots)
     } else if (SpotData.status === "1") {
         var testarray = []
@@ -134,7 +143,7 @@ app.post('/api/monitor/object/spot/change', (req, res) => {
 })
 
 // 新增"範圍"資料
-app.post('/api/monitor/object/scope/add', (req, res) => {
+app.post('/api/monitor/object/add/scope', (req, res) => {
     var status = true;
     const scopes = getScopesData()
     console.log(scopes)
@@ -176,7 +185,9 @@ app.post('/api/monitor/object/scope/add', (req, res) => {
             "scope_position_BR": {
                 "x": locationX1,
                 "y": locationY1
-            }
+            },
+            "scope_alarm_status": 0,
+            "scope_threshold": 20
         }
         scopes.push(newArray)
         scopes.sort(function (a, b) {
@@ -190,7 +201,7 @@ app.post('/api/monitor/object/scope/add', (req, res) => {
     })
 })
 // 編輯"範圍"資料
-app.post('/api/monitor/object/scope/change', (req, res) => {
+app.post('/api/monitor/object/change/scope', (req, res) => {
     const ScopeData = JSON.parse(req.body)
     const existScope = getScopesData()
     if (ScopeData.status === "0") {
@@ -199,10 +210,16 @@ app.post('/api/monitor/object/scope/change', (req, res) => {
             testarray.push(element.scope_number)
         })
         inquire = testarray.indexOf(ScopeData.scope_number);
-        existScope[inquire].scope_position_LT.x = ScopeData.scope_position_LT.x
-        existScope[inquire].scope_position_LT.y = ScopeData.scope_position_LT.y
-        existScope[inquire].scope_position_BR.x = ScopeData.scope_position_BR.x
-        existScope[inquire].scope_position_BR.y = ScopeData.scope_position_BR.y
+        if (ScopeData.scope_position_LT !== undefined) {
+            existScope[inquire].scope_position_LT.x = ScopeData.scope_position_LT.x
+            existScope[inquire].scope_position_LT.y = ScopeData.scope_position_LT.y
+            existScope[inquire].scope_position_BR.x = ScopeData.scope_position_BR.x
+            existScope[inquire].scope_position_BR.y = ScopeData.scope_position_BR.y
+        }
+        if (ScopeData.scope_alarm_status !== undefined || ScopeData.scope_threshold !== undefined) {
+            existScope[inquire].scope_alarm_status = ScopeData.scope_alarm_status
+            existScope[inquire].scope_threshold = ScopeData.scope_threshold
+        }
         saveScopeData(existScope)
     } else if (ScopeData.status === "1") {
         var testarray = []
@@ -241,7 +258,7 @@ app.post('/object/deletescope', (req, res) => {
 })
 
 // 新增線
-app.post('/api/monitor/object/line/add', (req, res) => {
+app.post('/api/monitor/object/add/line', (req, res) => {
     var status = true;
     const lines = getLinesData()
     console.log(lines)
@@ -283,7 +300,9 @@ app.post('/api/monitor/object/line/add', (req, res) => {
             "line_position_point_B": {
                 "x": locationX1,
                 "y": locationY1
-            }
+            },
+            "line_alarm_status": 0,
+            "line_threshold": 20
         }
         lines.push(newArray)
         lines.sort(function (a, b) {
@@ -297,7 +316,7 @@ app.post('/api/monitor/object/line/add', (req, res) => {
     })
 })
 // 編輯"線"資料
-app.post('/api/monitor/object/line/change', (req, res) => {
+app.post('/api/monitor/object/change/line', (req, res) => {
     const LineData = JSON.parse(req.body)
     const existLine = getLinesData()
     if (LineData.status === "0") {
@@ -307,12 +326,17 @@ app.post('/api/monitor/object/line/change', (req, res) => {
         })
         inquire = testarray.indexOf(LineData.line_number);
         // if (LineData.select === "pointA") {
-        existLine[inquire].line_position_point_A.x = LineData.line_position_point_A.x
-        existLine[inquire].line_position_point_A.y = LineData.line_position_point_A.y
-        // } else if (LineData.select === "pointB") {
-        existLine[inquire].line_position_point_B.x = LineData.line_position_point_B.x
-        existLine[inquire].line_position_point_B.y = LineData.line_position_point_B.y
-        // }
+        if (LineData.line_position_point_A !== undefined) {
+            existLine[inquire].line_position_point_A.x = LineData.line_position_point_A.x
+            existLine[inquire].line_position_point_A.y = LineData.line_position_point_A.y
+            // } else if (LineData.select === "pointB") {
+            existLine[inquire].line_position_point_B.x = LineData.line_position_point_B.x
+            existLine[inquire].line_position_point_B.y = LineData.line_position_point_B.y
+        }
+        if (LineData.line_alarm_status !== undefined || LineData.line_threshold !== undefined) {
+            existLine[inquire].line_alarm_status = LineData.line_alarm_status
+            existLine[inquire].line_threshold = LineData.line_threshold
+        }
         saveLineData(existLine)
     } else if (LineData.status === "1") {
         var testarray = []
@@ -350,7 +374,7 @@ app.post('/object/deleteline', (req, res) => {
     })
 })
 /* util functions */
-// 假資料
+// 測試 ------- Thermal_MO test pages
 app.get('/api/monitor/test', (req, res) => {
     const UserGetDate = url.parse(req.url, true).query
     // })
@@ -360,6 +384,9 @@ app.get('/api/monitor/test', (req, res) => {
     var date = new Date(today)
     date_s = date.getTime()
     // console.log(time.getFullYear()+'' + time.getMonth() + time.getDate() + "_T" + time.getHours() + time.getMinutes() + time.getSeconds())
+    var objects = ['參考點', '點1', '點2', '點3', '點4', '點5', '點6', '線1', '線2', '線3', '線4', '線5', '線6', '矩形1', '矩形2', '矩形3', '矩形4', '矩形5', '矩形6', 'difference01', 'difference02', 'difference03']
+    // var objects = ['參考點']
+    var rangePointRandom = [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     for (var i = 0; i < 86400; i = i + 10) {
         console.log(i)
         var setTime = date.setTime(date_s + 1000 * i)
@@ -371,25 +398,154 @@ app.get('/api/monitor/test', (req, res) => {
         let minutes = ("0" + time.getMinutes()).slice(-2);
         let seconds = ("0" + time.getSeconds()).slice(-2);
         var key = year.toString() + month.toString() + date1.toString() + "_T" + hours.toString() + minutes.toString() + seconds.toString()
-        // data.push({
-        // i: ["445", "445", "445"]
-        // })
-        if (i > 10000 && i < 20000 || i > 50000 && i < 70000) {
-            data[key] = [generateRandomInt(30, 60), "", generateRandomInt(30, 60)]
-        } else {
-            data[key] = [generateRandomInt(30, 60), generateRandomInt(30, 60), generateRandomInt(30, 60)]
+        var array = {}
+        objects.forEach(function (element) {
+            if (element === '參考點') {
+                Object.assign(array, {
+                    [element]: {
+                        value: generateRandomInt(20, 23),
+                        point: 0
+                    }
+                })
+            } else if (element === 'difference01') {
+                Object.assign(array, {
+                    [element]: {
+                        value: generateRandomInt(30, 60),
+                        point: 0
+                    }
+                })
+            } else if (element === 'difference02' || element === 'difference03') {
+                Object.assign(array, {
+                    [element]: {
+                        value: generateRandomInt(15, 20),
+                        point: 0
+                    }
+                })
+            } else {
+                Object.assign(array, {
+                    [element]: {
+                        value: generateRandomInt(30, 60),
+                        point: rangePointRandom[generateRandomInt(0, rangePointRandom.length)]
+                    }
+                })
+            }
 
-        }
-
+        })
+        data[key] = array
     }
     res.send(data)
-    // console.log(xxx)
     xxx++
 })
+
+app.get('/api/alarm/list', (req, res) => {
+    var params = url.parse(req.url, true).query;
+    console.log(params)
+    const first = new Date(params.table_timeselectStart + ' 00:00:00').getTime();
+    const last = new Date(params.table_timeselectStop + ' 23:59:59').getTime();
+    var object = ['spot', 'line', 'scope']
+    var arr = []
+    for (var i = 0; i < getRandomIntInclusive(0, 50); i++) {
+        var start = getRandomIntInclusive(first, last)
+        var soc = getRandomIntInclusive(300, 3600)
+        var stop = (start + (soc * 1000))
+        arr.push({
+            table_itemName: object[getRandomIntInclusive(0, 2)] + getRandomIntInclusive(1, 6),
+            table_alarm_start: start,
+            table_alarm_stop: getDateTimeToConvert(stop),
+            table_alarm_threshold: 60,
+            table_max: generateRandomInt(65.0, 80.5),
+        })
+    }
+    // console.log(arr)
+    arr = objArraySort(arr, 'table_alarm_start')
+    arr.forEach((value, index) => {
+        var start = getDateTimeToConvert(value.table_alarm_start)
+        arr[index].table_alarm_start = start
+    })
+    res.send(arr)
+})
+app.get('/api/alarm/txt', (req, res) => {
+    var output = []
+    var arr = [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 3]
+    for (var i = 0; i < 6; i++) {
+        for (var j = 0; j < 24; j++) {
+            output.push([i, j, arr[getRandomIntInclusive(0, arr.length)]])
+        }
+    }
+    res.send(output)
+})
+app.get('/api/alarm/test', (req, res) => {
+    var output = []
+
+    res.send(output)
+})
+app.get('/api/alarm/max', (req, res) => {
+    var output = null
+    var time = []
+    var max = {
+        spot1: [],
+        line1: [],
+        scope1: []
+    }
+    var min = []
+    var avg = []
+    var date = new Date()
+    for (var i = 0; i < getRandomIntInclusive(10, 150); i++) {
+        // var dateTime = date.setTime(date.getTime() + (getRandomIntInclusive(10, 3600) * 1000))
+        // time
+        var dateTime = date.setTime(date.getTime() + 1000)
+        var setDate = new Date(dateTime)
+        var getDate =
+            setDate.getFullYear() +
+            "" +
+            ("0" + (setDate.getMonth() + 1)).slice(-2) +
+            "" +
+            ("0" + setDate.getDate()).slice(-2) + "_T" +
+            ("0" + setDate.getHours()).slice(-2) + "" +
+            ("0" + setDate.getMinutes()).slice(-2) + "" +
+            ("0" + setDate.getSeconds()).slice(-2)
+        time.push(getDate)
+        // max
+        max.spot1.push(getRandomIntInclusive(10, 55))
+        max.line1.push(getRandomIntInclusive(10, 55))
+        max.scope1.push(getRandomIntInclusive(10, 55))
+    }
+    output = {
+        time: time,
+        max: max,
+        min: min,
+        avg: avg
+    }
+    res.send(output)
+})
+
+function objArraySort(objArr, key) {
+    let result = objArr.slice(0);
+    return result.sort((a, b) => a[key] - b[key]);
+}
+
+function getRandomIntInclusive(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+function getDateTimeToConvert(time) {
+    var time = new Date(time)
+    var year = time.getFullYear()
+    var month = ("0" + (time.getMonth() + 1)).slice(-2)
+    var day = ("0" + time.getDate()).slice(-2)
+    var hours = ("0" + time.getHours()).slice(-2)
+    var minutes = ("0" + time.getMinutes()).slice(-2)
+    var seconds = ("0" + time.getSeconds()).slice(-2)
+    var days = year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds
+    return days
+}
 
 function generateRandomInt(min, max) {
     return Math.floor((Math.random() * (max - min)) + min);
 }
+// 測試 ------- Thermal_MO test pages (end)
 
 //read the user data from json file
 // save spot
@@ -431,7 +587,11 @@ const getLinesData = () => {
     return JSON.parse(jsonData)
 }
 
-
+const gettest = () => {
+    const jsonData = fs.readFileSync('./object/test.json')
+    // console.log(JSON.parse(jsonData))
+    return JSON.parse(jsonData)
+}
 const json2array = (json) => {
     var result = [];
     var keys = Object.keys(json);

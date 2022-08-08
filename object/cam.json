@@ -1,0 +1,13 @@
+[{
+    "cam": "rtsp://192.168.0.177:9554/live?channel=0&subtype=0",
+    "proxy": "43ea5351-2412-45ac-ad35-f5686a594c15"
+}, {
+    "cam": "rtsp://192.168.0.177:9554/live?channel=0&subtype=0",
+    "proxy": "2daa8202-f2ea-44fe-8a20-a0d8111c0c1a"
+}, {
+    "cam": "rtsp://192.168.0.177:9554/live?channel=0&subtype=0",
+    "proxy": "668382a2-ed82-45c5-a8f9-bddbb10b6138"
+}, {
+    "cam": "rtsp://192.168.0.150:554/type=0&id=1",
+    "proxy": "ba7a57da-b1ab-4a1e-9360-b2e6c8002271"
+}]
