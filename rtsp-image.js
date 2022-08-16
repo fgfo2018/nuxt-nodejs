@@ -284,7 +284,7 @@ setInterval(() => {
         arr.shift();
         pustatus = tp
     }
-}, 100)
+}, 200)
 
 function putLOG(content) {
     const path = './log.txt'
