@@ -327,5 +327,5 @@ process.on('SIGINT', () => {
         if (exit1) {
             process.exit(0);
         }
-    }, 0)
+    }, 10)
 })
