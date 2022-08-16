@@ -319,3 +319,13 @@ function mToday() {
     });
     return m;
 }
+var exit1 = false;
+process.on('SIGINT', () => {
+    var data = `[exit][${mToday()}]:程序退出`
+    exit1 = putLOG(data)
+    setInterval(() => {
+        if (exit1) {
+            process.exit(0);
+        }
+    }, 0)
+})
