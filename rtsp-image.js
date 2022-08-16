@@ -87,9 +87,34 @@ app.use(bodyParser.text({
 //         });
 //     })
 // });
-
+var arr = {
+    x: 0,
+    y: 0
+};
+io.on("connection", (socket) => {
+    console.log('user connected')
+    // 建立一個 "sendMessage" 的監聽
+    io.emit("allMessage", arr)
+    socket.on("sendMessage", function (message) {
+        console.log(message)
+        arr.x = message.x
+        arr.y = message.y
+        // 當收到事件的時候，也發送一個 "allMessage" 事件給所有的連線用戶
+        io.emit("allMessage", arr)
+    })
+})
 var streamList = []
 // 接收要直播的資訊
+app.get('/test', (req, res) => {
+    res.send({
+        txt: 'Hello World'
+    })
+})
+app.post('/test', (req, res) => {
+    res.send({
+        txt: 'Hello World'
+    })
+})
 app.post('/stream', (req, res) => {
     const data = JSON.parse(req.body)
     data.forEach((index) => {
@@ -240,4 +265,38 @@ function _uuid() {
         d = Math.floor(d / 16);
         return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
+}
+
+const saveLogData = (content) => {
+    const path = './log.txt'
+    try {
+        if (!fs.existsSync(path)) {
+            fs.writeFile(path, '', function (error) {
+                console.log(error)
+                console.log('create log.txt')
+            })
+        }
+    } catch (err) {
+        console.error(err)
+    }
+    var data = fs.readFileSync(path).toString().split("\n");
+    data.splice(-1, 0, content);
+    var text = data.join("\n");
+    fs.writeFile(path, text, function (err) {
+        if (err) return console.log(err);
+    });
+}
+
+var system1 = `系統在[${mToday()}]啟動`
+saveLogData(system1)
+setInterval(() => {
+    var data = `[OK][${mToday()}]:System is normal`
+    saveLogData(data)
+}, 5 * 60 * 1000)
+
+function mToday() {
+    var m = new Date().toLocaleString('zh-TW', {
+        timeZone: 'Asia/Taipei'
+    });
+    return m;
 }
