@@ -239,7 +239,7 @@ app.post('/add', (req, res) => {
 })
 app.post('/log', function (req, res) {
     const id = JSON.parse(req.body)
-    var data = '[ERROR][' + mToday() + ']:rtsp is not working：' + id.name;
+    var data = '[ERROR][' + mToday() + ']:scoket to rtsp  not working：' + id.name;
     console.log(data)
     saveLogData(data)
     res.send({
@@ -315,10 +315,10 @@ function putLOG(content) {
     });
     return true;
 }
-var system1 = `系統在[${mToday()}]啟動`
+var system1 = `[system info][${mToday()}]:系統正常啟動`
 saveLogData(system1)
 setInterval(() => {
-    var data = `[OK][${mToday()}]:System is normal`
+    var data = `[system info][${mToday()}]:System is normal`
     saveLogData(data)
 }, 0.1 * 60 * 1000)
 
@@ -330,7 +330,7 @@ function mToday() {
 }
 var exit1 = false;
 process.on('SIGINT', () => {
-    var data = `[exit][${mToday()}]:程序退出`
+    var data = `[system info][${mToday()}]:系統程序退出`
     exit1 = putLOG(data)
     setInterval(() => {
         if (exit1) {
