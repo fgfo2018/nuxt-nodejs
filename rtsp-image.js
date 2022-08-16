@@ -128,14 +128,14 @@ app.post('/stream', (req, res) => {
             var ip = [index.rtsp].map(function (uri) {
                 var stream = new rtsp.FFMpeg({
                     input: uri,
-                    rate: 1,
+                    rate: 30,
                     // resolution:'960x540',
                     // resolution: '854x480',
                     quality: 1
                 });
 
                 stream.on('start', function () {
-                    var data = `[Proxy][${mToday()}]:Proxy for ${index.proxy} `
+                    var data = `[Proxy][${mToday()}]:Proxy for ${index.rtsp} `
                     saveLogData(data)
                     console.log('stream ' + totle + ' started');
                 });
