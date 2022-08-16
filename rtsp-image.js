@@ -237,6 +237,15 @@ app.post('/add', (req, res) => {
     // // console.log(cams)
     // totle = totle + 1
 })
+app.post('/log', function (req, res) {
+    const id = JSON.parse(req.body)
+    var data = '[ERROR][' + mToday() + ']:rtsp is not working：' + id.name;
+    console.log(data)
+    saveLogData(data)
+    res.send({
+        success: true,
+    })
+});
 
 app.listen(6148, function () {
     console.log("API啟動成功");
