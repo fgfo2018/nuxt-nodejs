@@ -7,7 +7,8 @@
     "express": "^4.17.3",
     "node-datetime": "^2.1.2",
     "rtsp-ffmpeg": "^0.0.16",
-    "socket.io": "^4.4.1"
+    "socket.io": "^4.4.1",
+    "windows-cpu": "^1.1.0"
   },
   "name": "NodeApi",
   "license": "ISC",

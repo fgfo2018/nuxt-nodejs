@@ -133,7 +133,10 @@ app.post('/stream', (req, res) => {
                     // resolution: '854x480',
                     quality: 1
                 });
+
                 stream.on('start', function () {
+                    var data = `[Proxy][${mToday()}]:Proxy for ${index.proxy} `
+                    saveLogData(data)
                     console.log('stream ' + totle + ' started');
                 });
                 stream.on('stop', function () {
@@ -152,6 +155,7 @@ app.post('/stream', (req, res) => {
                         camStream.removeListener('data', pipeStream);
                     });
                 });
+
             })
             io.on('connection', function (socket) {
                 socket.emit('start', totle);
@@ -266,8 +270,23 @@ function _uuid() {
         return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
 }
+var arr = []
 
-const saveLogData = (content) => {
+function saveLogData(content) {
+    arr.push(content)
+    console.log(arr)
+}
+var pustatus = true
+setInterval(() => {
+    if (arr.length > 0 && pustatus) {
+        pustatus = false
+        var tp = putLOG(arr[0])
+        arr.shift();
+        pustatus = tp
+    }
+}, 100)
+
+function putLOG(content) {
     const path = './log.txt'
     try {
         if (!fs.existsSync(path)) {
@@ -285,14 +304,14 @@ const saveLogData = (content) => {
     fs.writeFile(path, text, function (err) {
         if (err) return console.log(err);
     });
+    return true;
 }
-
 var system1 = `系統在[${mToday()}]啟動`
 saveLogData(system1)
 setInterval(() => {
     var data = `[OK][${mToday()}]:System is normal`
     saveLogData(data)
-}, 5 * 60 * 1000)
+}, 0.1 * 60 * 1000)
 
 function mToday() {
     var m = new Date().toLocaleString('zh-TW', {
